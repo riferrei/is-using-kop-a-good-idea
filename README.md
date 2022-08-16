@@ -11,6 +11,10 @@ This gets you pumped. Is that it? Can I go ahead and simply point my microservic
 
 - **Stream processing using ksqlDB**: Stream processing pipeline using [ksqlDB](https://ksqldb.io) to flat out events produced to Kafka. ksqlDB uses an endpoint exposed by Apache Pulsar with KoP enabled.
 
+💡 This repository was created as part of the session entitled **Is Using KoP (Kafka-On-Pulsar) a Good Idea?** delivered in the [Pulsar Summit 2022](https://pulsar-summit.org/event/san-francisco-2022) conference, in San Francisco, CA. Click in the image below to access slides and recording of this session.
+
+[![Is Using KoP (Kafka-On-Pulsar) a Good Idea?](/images/pulsar-summit-session.png "https://talks.riferrei.com/LgUiHy")](https://talks.riferrei.com/LgUiHy)
+
 Requirements
 ------------
 
