@@ -27,7 +27,7 @@ Requirements
 🏬 Shared Apache Pulsar Infrastructure
 --------------------------------------
 
-Before jumping into any of the scenarios, you must start the shared infrastructure all of them will use. This includes one Zookeeper instance, two Zookeeper instances, and two Pulsar brokers.
+Before jumping into any of the scenarios, you must start the shared infrastructure all of them will use. This includes one Zookeeper instance, two Bookkeepers, and two Pulsar brokers.
 
 1️⃣ Start the persistence layer
 
