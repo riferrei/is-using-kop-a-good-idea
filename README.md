@@ -20,7 +20,7 @@ Requirements
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
 - [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
 
-✅ Scenario: Microservice built for Apache Pulsar
+✅ Scenario: Microservice built for Apache Kafka
 -------------------------------------------------
 
 This scenario checks two things. First, if KoP provides a truly Kafka-compatible API where third-party frameworks such as [Spring Boot](https://spring.io/projects/spring-boot) can connect with without deployment problems. Second, to check whether KoP is capable of mimic the distributed protocol from Kafka. Kafka is not just a one-directional typical client-server protocol. Instead, it is a two-way, bi-directional protocol where messages are exchanged from both parties. A good example is when a producer connects to the Kafka cluster using one bootstrap server endpoint, and the cluster keeps periodically updating that list back to the producer with metadata about the new cluster formation. Same for the consumer, which after joining a group, may be eventually removed by the cluster for the absence of valid heartbeats.
