@@ -81,7 +81,7 @@ $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup pe
 7️⃣ Forcing a fail-over situation by killing the leader
 
 ```bash
-sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_FIVE>
+sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_SIX>
 ```
 
 ❗️ Observe the microservice for a couple minutes. It must continue its processing.
