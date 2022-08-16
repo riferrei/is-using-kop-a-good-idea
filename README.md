@@ -24,7 +24,7 @@ Requirements
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
 - [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
 
-✅ Shared Apache Pulsar Infrastructure
+🏬 Shared Apache Pulsar Infrastructure
 --------------------------------------
 
 Before jumping into any of the scenarios, you must start the shared infrastructure all of them will use. This includes one Zookeeper instance, two Zookeeper instances, and two Pulsar brokers.
@@ -35,7 +35,7 @@ Before jumping into any of the scenarios, you must start the shared infrastructu
 sh start-persistence.sh
 ```
 
-❗️ You must wait until the containers `zookeeper`, `persistence-bookie-1`, and `persistence-bookie-2` are healthy to proceed with the next step.
+👀 You must wait until the containers `zookeeper`, `persistence-bookie-1`, and `persistence-bookie-2` are healthy to proceed with the next step.
 
 2️⃣ Start the Pulsar brokers with KoP enabled
 
@@ -43,7 +43,7 @@ sh start-persistence.sh
 sh start-brokers.sh
 ```
 
-❗️ You must wait until the containers `kafka-1` and `kafka-2` are healthy to proceed with any next step.
+👀 You must wait until the containers `kafka-1` and `kafka-2` are healthy to proceed with any next step.
 
 ✅ Scenario: Microservice built for Apache Kafka
 -------------------------------------------------
@@ -64,7 +64,7 @@ cd microservice-with-kafka
 sh run-microservice.sh
 ```
 
-❗️ You must wait until the microservice connects with the brokers and start producing and consuming messages like this:
+👀 You must wait until the microservice connects with the brokers and start producing and consuming messages like this:
 
 ```bash
 org.summit.pulsar.demo.LoneTalker : [Producer] 🤷🏻‍♂️ Hey, I want to talk about the number 23
@@ -79,7 +79,7 @@ org.summit.pulsar.demo.LoneTalker : [Consumer] 🙋🏻‍♂️ OK. Let's talk 
 $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup persistent://public/default/loneTalkerTopic
 ```
 
-❗️ Take a note of which broker shows up in this lookup.
+👀 Take a note of which broker shows up in this lookup.
 
 4️⃣ Forcing a fail-over situation by killing the leader
 
@@ -87,7 +87,7 @@ $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup pe
 sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_THREE>
 ```
 
-❗️ Observe the microservice for a couple minutes. It must continue its processing.
+👀 Observe the microservice for a couple minutes. It must continue its processing.
 
 ✅ Scenario: CDC using Debezium for MySQL
 -----------------------------------------
@@ -102,7 +102,7 @@ This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with
 sh start-connect-integration.sh
 ```
 
-❗️ You must wait until the containers `mysql` and `connect` are healthy to proceed with the next step.
+👀 You must wait until the containers `mysql` and `connect` are healthy to proceed with the next step.
 
 2️⃣ Enter into the `connect-integration` folder
 
@@ -159,7 +159,7 @@ You should see an output like this:
 $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic dbserver1.inventory.customers
 ```
 
-❗️ Leave this console open so you can see the data coming in.
+👀 Leave this console open so you can see the data coming in.
 
 6️⃣ Insert a new record into the `customers` table.
 
@@ -196,7 +196,7 @@ This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with
 sh start-stream-processing.sh
 ```
 
-❗️ You must wait until the containers `schema-registry` and `ksqldb-server` are healthy to proceed with the next step.
+👀 You must wait until the containers `schema-registry` and `ksqldb-server` are healthy to proceed with the next step.
 
 2️⃣ Enter into the `stream-processing` folder
 
@@ -255,7 +255,7 @@ FROM FLATTENED_ORDERS
 EMIT CHANGES;
 ```
 
-❗️ This query never stops, unless you press Cmd+C to interrupt its execution. Leave this console open so you can see the data coming in.
+👀 This query never stops, unless you press Cmd+C to interrupt its execution. Leave this console open so you can see the data coming in.
 
 5️⃣ Ingest data into the input topic
 
