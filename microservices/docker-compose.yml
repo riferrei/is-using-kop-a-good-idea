@@ -1,0 +1,144 @@
+version: '3'
+
+services:
+
+  zookeeper:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: zookeeper
+    hostname: zookeeper
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/zookeeper.conf &&
+      exec bin/pulsar zookeeper"
+    environment:
+      PULSAR_PREFIX_clientPortAddress: zookeeper
+      PULSAR_PREFIX_clientPort: 2181
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: echo ruok | nc zookeeper 2181
+
+  init-cluster:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: init-cluster
+    hostname: init-cluster
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    command: >
+      bash -c "bin/pulsar initialize-cluster-metadata -c microservices -zk zookeeper:2181 -cs zookeeper:2181 -uw http://microservices-kafka-1:8080,microservices-kafka-2:8080"
+
+  bookie-1:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: bookie-1
+    hostname: bookie-1
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      init-cluster:
+        condition: service_completed_successfully
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf &&
+      exec bin/bookkeeper bookie"
+    environment:
+      PULSAR_PREFIX_zkServers: zookeeper:2181
+      PULSAR_PREFIX_useHostNameAsBookieID: "true"
+      PULSAR_PREFIX_bookiePort: 3181
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: echo ruok | nc bookie-1 3181
+
+  bookie-2:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: bookie-2
+    hostname: bookie-2
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      init-cluster:
+        condition: service_completed_successfully
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf &&
+      exec bin/bookkeeper bookie"
+    environment:
+      PULSAR_PREFIX_zkServers: zookeeper:2181
+      PULSAR_PREFIX_useHostNameAsBookieID: "true"
+      PULSAR_PREFIX_bookiePort: 3181
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: echo ruok | nc bookie-2 3181
+
+  kafka-1:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: kafka-1
+    hostname: kafka-1
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      bookie-1:
+        condition: service_healthy
+      bookie-2:
+        condition: service_healthy
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/broker.conf &&
+      exec bin/pulsar broker"
+    environment:
+      PULSAR_PREFIX_messagingProtocols: kafka
+      PULSAR_PREFIX_allowAutoTopicCreationType: partitioned
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
+      PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9092
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-1:9092,PLAINTEXT://localhost:9092
+      PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+      PULSAR_PREFIX_zookeeperServers: zookeeper:2181
+      PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
+      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
+      PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
+      PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
+    ports:
+      - 6650:6650
+      - 8080:8080
+      - 9092:9092
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices
+
+  kafka-2:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: kafka-2
+    hostname: kafka-2
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      bookie-1:
+        condition: service_healthy
+      bookie-2:
+        condition: service_healthy
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/broker.conf &&
+      exec bin/pulsar broker"
+    environment:
+      PULSAR_PREFIX_messagingProtocols: kafka
+      PULSAR_PREFIX_allowAutoTopicCreationType: partitioned
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
+      PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9093
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-2:9093,PLAINTEXT://localhost:9093
+      PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+      PULSAR_PREFIX_zookeeperServers: zookeeper:2181
+      PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
+      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
+      PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
+      PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
+    ports:
+      - 6651:6650
+      - 8081:8080
+      - 9093:9093
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices

@@ -1,0 +1,100 @@
+version: '3'
+
+services:
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.2.1
+  #   container_name: zookeeper
+  #   hostname: zookeeper
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   healthcheck:
+  #     interval: 5s
+  #     retries: 20
+  #     test: echo ruok | nc zookeeper 2181
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:7.2.1
+  #   container_name: kafka
+  #   hostname: kafka
+  #   depends_on:
+  #     zookeeper:
+  #       condition: service_healthy
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  
+  #   ports:
+  #     - 9092:9092
+  #   healthcheck:
+  #     test: nc -z localhost 9092 || exit -1
+  #     interval: 5s
+  #     retries: 20
+
+  kafka:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: kafka
+    hostname: kafka
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/standalone.conf &&
+      exec bin/pulsar standalone -nss -nfw"
+    environment:
+      PULSAR_PREFIX_messagingProtocols: kafka
+      PULSAR_PREFIX_allowAutoTopicCreationType: partitioned
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: true
+      PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: false
+      PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9092
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka:9092
+      PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+    ports:
+      - 6650:6650
+      - 8080:8080
+      - 9092:9092
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/standalone
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.2.1
+    container_name: schema-registry
+    hostname: schema-registry
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    ports:
+      - 8081:8081
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8081
+
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.27.2
+    container_name: ksqldb-server
+    hostname: ksqldb-server
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092
+      KSQL_HOST_NAME: ksqldb-server
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    ports:
+      - 8088:8088
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8088/info

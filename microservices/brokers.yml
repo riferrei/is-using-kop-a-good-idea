@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+
+  kafka-1:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: kafka-1
+    hostname: kafka-1
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/broker.conf &&
+      exec bin/pulsar broker"
+    environment:
+      PULSAR_PREFIX_messagingProtocols: kafka
+      PULSAR_PREFIX_allowAutoTopicCreationType: partitioned
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
+      PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9092
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-1:9092,PLAINTEXT://localhost:9092
+      PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+      PULSAR_PREFIX_zookeeperServers: zookeeper:2181
+      PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
+      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
+      PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
+      PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
+    ports:
+      - 6650:6650
+      - 8080:8080
+      - 9092:9092
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices
+
+  kafka-2:
+    image: streamnative/sn-pulsar:2.10.1.4
+    container_name: kafka-2
+    hostname: kafka-2
+    command: >
+      bash -c "bin/apply-config-from-env.py conf/broker.conf &&
+      exec bin/pulsar broker"
+    environment:
+      PULSAR_PREFIX_messagingProtocols: kafka
+      PULSAR_PREFIX_allowAutoTopicCreationType: partitioned
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
+      PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9093
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-2:9093,PLAINTEXT://localhost:9093
+      PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+      PULSAR_PREFIX_zookeeperServers: zookeeper:2181
+      PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
+      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
+      PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
+      PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
+    ports:
+      - 6651:6650
+      - 8081:8080
+      - 9093:9093
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices
+
+networks:
+  default:
+    name: microservices
+    external: true

@@ -1,0 +1,8 @@
+.git
+.cache
+README.md
+
+.vscode
+docker-compose.yml
+run-microservice.sh
+target
