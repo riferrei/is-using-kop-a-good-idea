@@ -15,7 +15,7 @@ services:
       PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
       PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
       PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9092
-      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-1:9092,PLAINTEXT://localhost:9092
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-1:9092
       PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
       PULSAR_PREFIX_zookeeperServers: zookeeper:2181
       PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
@@ -45,7 +45,7 @@ services:
       PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
       PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
       PULSAR_PREFIX_kafkaListeners: PLAINTEXT://0.0.0.0:9093
-      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-2:9093,PLAINTEXT://localhost:9093
+      PULSAR_PREFIX_kafkaAdvertisedListeners: PLAINTEXT://kafka-2:9093
       PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
       PULSAR_PREFIX_zookeeperServers: zookeeper:2181
       PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
