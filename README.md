@@ -1,9 +1,9 @@
 Is Using KoP (Kafka-On-Pulsar) a Good Idea?
 ===========================================
 
-Building microservices around Apache Kafka is your job, and life is great. One day, you hear community members talking about some neat Apache Pulsar features, and get you intrigued. I mean, we all love Kafka, but you can't avoid wondering if migrate one of your projects to Pulsar is a good idea. Then it happens. You find Pulsar supports Kafka clients natively via a [protocol handler](https://github.com/apache/pulsar/wiki/PIP-41:-Pluggable-Protocol-Handler) called KoP: [Kafka-On-Pulsar](https://github.com/streamnative/kop).
+Building microservices around Apache Kafka is your job, and life is great. One day, you hear community members talking about some neat Apache Pulsar features, and get you intrigued. I mean, we all love Kafka, but you can't avoid wondering if migrating one of your projects to Pulsar is a good idea. Then it happens. You find Pulsar supports Kafka clients natively via a [protocol handler](https://github.com/apache/pulsar/wiki/PIP-41:-Pluggable-Protocol-Handler) called KoP: [Kafka-On-Pulsar](https://github.com/streamnative/kop).
 
-This gets you pumped. Is that it? Can I go ahead and simply point my microservices to Pulsar and be a hero with this migration? But you must be responsible; and history says you shouldn't believe migrations like this are refactoring free. Reason you may get interested in what this repository offers. To prove that KoP is worth your time, use it in scenarios that would really put the technology to stress, going way beyond the bread-and-buttter of producing and consuming messages. Follow the instructions below to test KoP in the following scenarios:
+This gets you pumped. Is that it? Can I go ahead and simply point my microservices to Pulsar and be a hero with this migration? But you must be responsible; and history says you shouldn't believe migrations like this are refactoring free. This is why you may get interested in what this repository offers. To prove that KoP is worth your time, use it in scenarios that would really put the technology to stress, going way beyond the bread-and-buttter of producing and consuming messages. Follow the instructions below to test KoP in the following scenarios:
 
 - **Microservice built for Apache Kafka**: microservice written in [Spring Boot](https://spring.io/projects/spring-boot), that connects to a "Kafka Cluster" using two endpoints exposed by Apache Pulsar with KoP enabled.
 
@@ -24,6 +24,27 @@ Requirements
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
 - [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
 
+✅ Shared Apache Pulsar Infrastructure
+--------------------------------------
+
+Before jumping into any of the scenarios, you must start the shared infrastructure all of them will use. This includes one Zookeeper instance, two Zookeeper instances, and two Pulsar brokers.
+
+1️⃣ Start the persistence layer
+
+```console
+sh start-persistence.sh
+```
+
+❗️ You must wait until the containers `zookeeper`, `persistence-bookie-1`, and `persistence-bookie-2` are healthy to proceed with the next step.
+
+2️⃣ Start the Pulsar brokers with KoP enabled
+
+```bash
+sh start-brokers.sh
+```
+
+❗️ You must wait until the containers `kafka-1` and `kafka-2` are healthy to proceed with any next step.
+
 ✅ Scenario: Microservice built for Apache Kafka
 -------------------------------------------------
 
@@ -31,35 +52,13 @@ This scenario checks two things. First, if KoP provides a truly Kafka-compatible
 
 To validate this scenario, two Apache Pulsar brokers with KoP enabled will be executed, and the microservice will use the endpoint of only one broker to bootstrap the cluster. When everything is up-and-running and working as expected, the broker being used by the microservice will be killed, and the assumption is that the microservice should fallback to the other available broker, and continue its execution. If that ever happens, it means that the bootstrap worked as expected, giving the specifications of how Kafka manages clusters and sends this information to its clients.
 
-1️⃣ Enter into the `microservices` folder
+1️⃣ Enter into the `microservice-with-kafka` folder
 
 ```console
-cd microservices
+cd microservice-with-kafka
 ```
 
-2️⃣ Create a Docker network called `microservices`
-
-```console
-docker network create microservices
-```
-
-3️⃣ Start the persistence layer of the Apache Pulsar cluster
-
-```bash
-sh start-persistence.sh
-```
-
-❗️ You must wait until the containers `zookeeper`, `persistence-bookie-1`, and `persistence-bookie-2` are healthy to proceed with the next step.
-
-4️⃣ Start the Pulsar brokers with KoP enabled
-
-```bash
-sh start-brokers.sh
-```
-
-❗️ You must wait until the containers `broker-1` and `broker-2` are healthy to proceed with the next step.
-
-5️⃣ Run the Spring Boot microservice
+2️⃣ Run the Spring Boot microservice
 
 ```bash
 sh run-microservice.sh
@@ -74,7 +73,7 @@ org.summit.pulsar.demo.LoneTalker : [Consumer] 🙋🏻‍♂️ OK. Let's talk 
 
 💡 Here, the number `23` is just an example. Numbers will be generated randomly for you.
 
-6️⃣ Find out which broker is the leader of the partition
+3️⃣ Find out which broker is the leader of the partition
 
 ```bash
 $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup persistent://public/default/loneTalkerTopic
@@ -82,25 +81,13 @@ $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup pe
 
 ❗️ Take a note of which broker shows up in this lookup.
 
-7️⃣ Forcing a fail-over situation by killing the leader
+4️⃣ Forcing a fail-over situation by killing the leader
 
 ```bash
-sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_SIX>
+sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_THREE>
 ```
 
 ❗️ Observe the microservice for a couple minutes. It must continue its processing.
-
-8️⃣ Stop all the running containers
-
-```bash
-sh stop-everything.sh
-```
-
-9️⃣ Remove the Docker network called `microservices`
-
-```bash
-docker network rm microservices
-```
 
 ✅ Scenario: CDC using Debezium for MySQL
 -----------------------------------------
@@ -109,19 +96,19 @@ One of the most popular use cases for [Apache Kafka](https://kafka.apache.org) i
 
 This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with [KoP](https://github.com/streamnative/kop) enabled can be used as the data stream layer for Kafka Connect, which uses a connector from [Debezium](https://debezium.io) to stream data changes made in near real-time in a [MySQL](https://www.mysql.com) database. The validation process is very simple: you just need to set this up as you would using Apache Kafka — but use Apache Pulsar with KoP enabled instead. Everything must work as advertised.
 
-1️⃣ Enter into the `connect-integration` folder
+1️⃣ Start MySQL and Kafka Connect
+
+```console
+sh start-connect-integration.sh
+```
+
+❗️ You must wait until the containers `mysql` and `connect` are healthy to proceed with the next step.
+
+2️⃣ Enter into the `connect-integration` folder
 
 ```console
 cd connect-integration
 ```
-
-2️⃣ Start all the Docker containers
-
-```console
-docker compose up -d
-```
-
-❗️ You must wait until the containers `mysql`, `kafka`, and `connect` are healthy to proceed with the next step.
 
 3️⃣ Connect with the MySQL database and check the data
 
@@ -192,12 +179,6 @@ INSERT INTO customers VALUES (1006, "Ricardo", "Ferreira", "riferrei@riferrei.co
 {"schema":{"type":"struct","fields":[{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"string","optional":false,"field":"first_name"},{"type":"string","optional":false,"field":"last_name"},{"type":"string","optional":false,"field":"email"}],"optional":true,"name":"dbserver1.inventory.customers.Value","field":"before"},{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"string","optional":false,"field":"first_name"},{"type":"string","optional":false,"field":"last_name"},{"type":"string","optional":false,"field":"email"}],"optional":true,"name":"dbserver1.inventory.customers.Value","field":"after"},{"type":"struct","fields":[{"type":"string","optional":false,"field":"version"},{"type":"string","optional":false,"field":"connector"},{"type":"string","optional":false,"field":"name"},{"type":"int64","optional":false,"field":"ts_ms"},{"type":"string","optional":true,"name":"io.debezium.data.Enum","version":1,"parameters":{"allowed":"true,last,false,incremental"},"default":"false","field":"snapshot"},{"type":"string","optional":false,"field":"db"},{"type":"string","optional":true,"field":"sequence"},{"type":"string","optional":true,"field":"table"},{"type":"int64","optional":false,"field":"server_id"},{"type":"string","optional":true,"field":"gtid"},{"type":"string","optional":false,"field":"file"},{"type":"int64","optional":false,"field":"pos"},{"type":"int32","optional":false,"field":"row"},{"type":"int64","optional":true,"field":"thread"},{"type":"string","optional":true,"field":"query"}],"optional":false,"name":"io.debezium.connector.mysql.Source","field":"source"},{"type":"string","optional":false,"field":"op"},{"type":"int64","optional":true,"field":"ts_ms"},{"type":"struct","fields":[{"type":"string","optional":false,"field":"id"},{"type":"int64","optional":false,"field":"total_order"},{"type":"int64","optional":false,"field":"data_collection_order"}],"optional":true,"field":"transaction"}],"optional":false,"name":"dbserver1.inventory.customers.Envelope"},"payload":{"before":null,"after":{"id":1006,"first_name":"Ricardo","last_name":"Ferreira","email":"riferrei@riferrei.com"},"source":{"version":"1.9.5.Final","connector":"mysql","name":"dbserver1","ts_ms":1660657999000,"snapshot":"false","db":"inventory","sequence":null,"table":"customers","server_id":223344,"gtid":null,"file":"mysql-bin.000003","pos":392,"row":0,"thread":158,"query":null},"op":"c","ts_ms":1660657999587,"transaction":null}}
 ```
 
-8️⃣ Stop all the Docker containers
-
-```sql
-docker compose down
-```
-
 ### This scenario was created based on the following tutorial:
 
 🧑🏻‍💻 https://github.com/debezium/debezium-examples/tree/main/tutorial#using-mysql
@@ -209,19 +190,19 @@ Another popular use case for [Apache Kafka](https://kafka.apache.org) is using i
 
 This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with [KoP](https://github.com/streamnative/kop) enabled can be used as the data stream layer for ksqlDB, which implements a stream processing pipeline that flattens out events with a complex nested layout and also changes the data format from [JSON](https://www.json.org/json-en.html) to [Protobuf](https://developers.google.com/protocol-buffers). The validation process is very simple: you just need to set this up as you would using Apache Kafka — but use Apache Pulsar with KoP enabled instead. Everything must work as advertised.
 
-1️⃣ Enter into the `stream-processing` folder
+1️⃣ Start Schema Registry and ksqlDB
+
+```console
+sh start-stream-processing.sh
+```
+
+❗️ You must wait until the containers `schema-registry` and `ksqldb-server` are healthy to proceed with the next step.
+
+2️⃣ Enter into the `stream-processing` folder
 
 ```console
 cd stream-processing
 ```
-
-2️⃣ Start all the Docker containers
-
-```console
-docker compose up -d
-```
-
-❗️ You must wait until the containers `kafka`, `schema-registry`, and `ksqldb-server` are healthy to proceed with the next step.
 
 3️⃣ Connect with the ksqlDB server via CLI:
 
@@ -289,6 +270,7 @@ Copy-and-paste the events below to the `kafka-console-producer` CLI:
 {"id": "2", "timestamp": "2020-01-18 01:35:12", "amount": 84.02, "customer": {"firstName": "Tim", "lastName": "Berglund", "phoneNumber": "9987654321", "address": {"street": "Street UOI", "number": "1124", "zipcode": "85756", "city": "Littletown", "state": "CO"}}, "product": {"sku": "P12345", "name": "Highly Durable Glue", "vendor": {"vendorName": "Acme Corp", "country": "US"}}}
 {"id": "3", "timestamp": "2020-01-18 01:58:55", "amount": 84.02, "customer": {"firstName": "Robin", "lastName": "Moffatt", "phoneNumber": "4412356789", "address": {"street": "Street YUP", "number": "9066", "zipcode": "BD111NE", "city": "Leeds", "state": "YS"}}, "product": {"sku": "P12345", "name": "Highly Durable Glue", "vendor": {"vendorName": "Acme Corp", "country": "US"}}}
 {"id": "4", "timestamp": "2020-01-18 02:31:43", "amount": 84.02, "customer": {"firstName": "Viktor", "lastName": "Gamov", "phoneNumber": "9874563210", "address": {"street": "Street SHT", "number": "12450", "zipcode": "07003", "city": "New Jersey", "state": "NJ"}}, "product": {"sku": "P12345", "name": "Highly Durable Glue", "vendor": {"vendorName": "Acme Corp", "country": "US"}}}
+
 ```
 
 6️⃣ Verify if the pipeline executed correctly
@@ -306,12 +288,6 @@ Go back to the continuous query that you started on step 4. With new events arri
 ```
 
 💡 The actual output includes more columns that what is shown above.
-
-7️⃣ Stop all the Docker containers
-
-```sql
-docker compose down
-```
 
 ### This scenario was created based on the following tutorial:
 

@@ -64,5 +64,4 @@ services:
 
 networks:
   default:
-    name: microservices
-    external: true
+    name: is-using-kop-a-good-idea
