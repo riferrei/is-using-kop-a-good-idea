@@ -24,7 +24,7 @@ Requirements
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
 - [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
 
-🏬 Shared Apache Pulsar Infrastructure
+🏢 Shared Apache Pulsar Infrastructure
 --------------------------------------
 
 Before jumping into any of the scenarios, you must start the shared infrastructure all of them will use. This includes one Zookeeper instance, two Bookkeepers, and two Pulsar brokers.
@@ -66,17 +66,14 @@ sh run-microservice.sh
 
 👀 You must wait until the microservice connects with the brokers and start producing and consuming messages like this:
 
-```bash
-org.summit.pulsar.demo.LoneTalker : [Producer] 🤷🏻‍♂️ Hey, I want to talk about the number 23
-org.summit.pulsar.demo.LoneTalker : [Consumer] 🙋🏻‍♂️ OK. Let's talk about the number 23
+```console
+org.summit.pulsar.demo.FiveSecondsTom : Hi, I'm Tom 😄
 ```
-
-💡 Here, the number `23` is just an example. Numbers will be generated randomly for you.
 
 3️⃣ Find out which broker is the leader of the partition
 
 ```bash
-$PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup persistent://public/default/loneTalkerTopic
+$PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup persistent://public/default/fiveSecondsTomTopic
 ```
 
 👀 Take a note of which broker shows up in this lookup.

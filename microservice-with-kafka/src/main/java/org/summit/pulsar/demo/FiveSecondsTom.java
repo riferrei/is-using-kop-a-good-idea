@@ -15,28 +15,24 @@ import org.springframework.stereotype.Service;
 import static org.summit.pulsar.demo.Constants.*;
 
 @Service
-public class LoneTalker {
+public class FiveSecondsTom {
 
-    private final Random random = new Random(System.currentTimeMillis());
-    private final Logger logger = LoggerFactory.getLogger(LoneTalker.class);
+    private final Logger logger = LoggerFactory.getLogger(FiveSecondsTom.class);
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Scheduled(fixedRate = 5000)
-    public void saySomethingRandom() {
+    public void forgetAndMoveOn() {
 
-        int number = random.nextInt(1000);
-        String randomThought = "[Producer] 🤷🏻‍♂️ Hey, I want to talk about the number " + number;
-        logger.info(randomThought);
-
-        kafkaTemplate.send(TOPIC_NAME, String.valueOf(number));
+        String message = "Hi, I'm Tom 😄";
+        kafkaTemplate.send(TOPIC_NAME, message);
 
     }
 
     @KafkaListener(topics = Constants.TOPIC_NAME)
-        public void listeningToMyself(@Payload String message) {
-        logger.info("[Consumer] 🙋🏻‍♂️ OK. Let's talk about the number " + message);
+        public void sayHi(@Payload String message) {
+        logger.info(message);
     }
 
 }

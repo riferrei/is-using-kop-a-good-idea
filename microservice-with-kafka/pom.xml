@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.summit.pulsar.demo</groupId>
-    <artifactId>lone-talker</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>five-seconds-tom</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>Spring Boot Microservice using Apache Pulsar with KoP enabled</name>
