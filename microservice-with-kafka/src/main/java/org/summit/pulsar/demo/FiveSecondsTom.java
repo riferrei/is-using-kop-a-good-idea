@@ -1,7 +1,5 @@
 package org.summit.pulsar.demo;
 
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
