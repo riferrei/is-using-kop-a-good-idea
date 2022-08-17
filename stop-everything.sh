@@ -1,6 +1,6 @@
 #!/bin/bash
 
 ./stop-stream-processing.sh
-./stop-connect-integration.sh
+./stop-cdc-with-debezium.sh
 ./stop-brokers.sh
 ./stop-persistence.sh
