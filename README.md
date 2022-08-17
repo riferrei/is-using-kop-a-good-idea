@@ -103,15 +103,15 @@ This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with
 1️⃣ Start MySQL and Kafka Connect
 
 ```console
-sh start-connect-integration.sh
+sh start-cdc-with-debezium.sh
 ```
 
 👀 You must wait until the containers `mysql` and `connect` are healthy to proceed with the next step.
 
-2️⃣ Enter into the `connect-integration` folder
+2️⃣ Enter into the `cdc-with-debezium` folder
 
 ```console
-cd connect-integration
+cd cdc-with-debezium
 ```
 
 3️⃣ Connect with the MySQL database and check the data
