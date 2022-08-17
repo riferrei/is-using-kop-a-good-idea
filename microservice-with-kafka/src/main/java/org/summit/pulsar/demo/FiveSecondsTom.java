@@ -25,7 +25,7 @@ public class FiveSecondsTom {
     @Scheduled(fixedRate = 5000)
     public void forgetAndMoveOn() {
 
-        String message = "Hi, I'm Tom 😄";
+        final String message = "Hi, I'm Tom 😄";
         kafkaTemplate.send(TOPIC_NAME, message);
 
     }
