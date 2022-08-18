@@ -19,7 +19,7 @@ Requirements
 ------------
 
 - [Docker](https://www.docker.com/get-started) 4.11+
-- [Java](https://openjdk.org/install/) 11+
+- [Java](https://openjdk.org/install/) 17+
 - [Maven](https://maven.apache.org/download.cgi) 3.8.6+
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
 - [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
