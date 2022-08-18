@@ -18,7 +18,7 @@ services:
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:7081
 
   ksqldb-server:
-    image: confluentinc/ksqldb-server:0.27.2
+    image: confluentinc/cp-ksqldb-server:7.0.5
     container_name: ksqldb-server
     hostname: ksqldb-server
     depends_on:

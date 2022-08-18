@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker kill $1 && docker rm -f $1
+docker kill $1
+docker rm -f $1
