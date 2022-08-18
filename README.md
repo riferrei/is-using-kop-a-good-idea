@@ -80,7 +80,7 @@ sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_TWO>
 
 👀 Observe the microservice for a couple minutes. It must continue its processing.
 
-#️⃣ Stop all containers if you're done with the testing.
+#️⃣ stop all containers if you're done for the day.
 
 ```bash
 cd ..
