@@ -22,7 +22,7 @@ Requirements
 - [Java](https://openjdk.org/install/) 17+
 - [Maven](https://maven.apache.org/download.cgi) 3.8.6+
 - [Apache Pulsar](https://pulsar.apache.org/download) 2.10.1+
-- [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.2.1+
+- [Confluent Kafka](https://www.confluent.io/get-started/?product=software) 7.0.5+
 
 🏢 Shared Apache Pulsar Infrastructure
 --------------------------------------
@@ -179,8 +179,8 @@ INSERT INTO customers VALUES (1006, "Ricardo", "Ferreira", "riferrei@riferrei.co
 
 7️⃣ Look to the `kafka-console-consumer` output. You should see an output like this:
 
-```json
-{"schema":{"type":"struct","fields":[{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"string","optional":false,"field":"first_name"},{"type":"string","optional":false,"field":"last_name"},{"type":"string","optional":false,"field":"email"}],"optional":true,"name":"dbserver1.inventory.customers.Value","field":"before"},{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"string","optional":false,"field":"first_name"},{"type":"string","optional":false,"field":"last_name"},{"type":"string","optional":false,"field":"email"}],"optional":true,"name":"dbserver1.inventory.customers.Value","field":"after"},{"type":"struct","fields":[{"type":"string","optional":false,"field":"version"},{"type":"string","optional":false,"field":"connector"},{"type":"string","optional":false,"field":"name"},{"type":"int64","optional":false,"field":"ts_ms"},{"type":"string","optional":true,"name":"io.debezium.data.Enum","version":1,"parameters":{"allowed":"true,last,false,incremental"},"default":"false","field":"snapshot"},{"type":"string","optional":false,"field":"db"},{"type":"string","optional":true,"field":"sequence"},{"type":"string","optional":true,"field":"table"},{"type":"int64","optional":false,"field":"server_id"},{"type":"string","optional":true,"field":"gtid"},{"type":"string","optional":false,"field":"file"},{"type":"int64","optional":false,"field":"pos"},{"type":"int32","optional":false,"field":"row"},{"type":"int64","optional":true,"field":"thread"},{"type":"string","optional":true,"field":"query"}],"optional":false,"name":"io.debezium.connector.mysql.Source","field":"source"},{"type":"string","optional":false,"field":"op"},{"type":"int64","optional":true,"field":"ts_ms"},{"type":"struct","fields":[{"type":"string","optional":false,"field":"id"},{"type":"int64","optional":false,"field":"total_order"},{"type":"int64","optional":false,"field":"data_collection_order"}],"optional":true,"field":"transaction"}],"optional":false,"name":"dbserver1.inventory.customers.Envelope"},"payload":{"before":null,"after":{"id":1006,"first_name":"Ricardo","last_name":"Ferreira","email":"riferrei@riferrei.com"},"source":{"version":"1.9.5.Final","connector":"mysql","name":"dbserver1","ts_ms":1660657999000,"snapshot":"false","db":"inventory","sequence":null,"table":"customers","server_id":223344,"gtid":null,"file":"mysql-bin.000003","pos":392,"row":0,"thread":158,"query":null},"op":"c","ts_ms":1660657999587,"transaction":null}}
+```bash
+Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei@riferrei.com},source=Struct{version=1.9.3.Final,connector=mysql,name=dbserver1,ts_ms=1660824226000,db=inventory,table=customers,server_id=223344,file=mysql-bin.000003,pos=392,row=0,thread=113},op=c,ts_ms=1660824226436}
 ```
 
 #️⃣ Stop all containers if you're done with the testing.

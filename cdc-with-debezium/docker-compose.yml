@@ -18,20 +18,39 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
 
   connect:
-    image: quay.io/debezium/connect:1.9
+    image: confluentinc/cp-kafka-connect:7.0.5
     container_name: connect
     hostname: connect
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
-      BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9093
-      CONFIG_STORAGE_TOPIC: my_connect_configs
-      OFFSET_STORAGE_TOPIC: my_connect_offsets
-      STATUS_STORAGE_TOPIC: my_connect_statuses
-      GROUP_ID: 1
     ports:
       - 8083:8083
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9093
+      CONNECT_GROUP_ID: kafka-connect
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: _connect-status
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+      CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
+      CONNECT_REST_PORT: 8083
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing Connector"
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.9.3
+        #
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
     healthcheck:
       interval: 5s
       retries: 20
