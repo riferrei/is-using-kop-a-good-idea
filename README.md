@@ -83,7 +83,6 @@ sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_TWO>
 #️⃣ stop all containers if you're done for the day.
 
 ```bash
-cd ..
 sh stop-everything.sh
 ```
 
