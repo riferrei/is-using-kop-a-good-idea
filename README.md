@@ -31,7 +31,7 @@ Before jumping into any of the scenarios, you must start the shared infrastructu
 
 1️⃣ Start the persistence layer
 
-```console
+```bash
 sh start-persistence.sh
 ```
 
@@ -94,9 +94,9 @@ One of the most popular use cases for [Apache Kafka](https://kafka.apache.org) i
 
 This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with [KoP](https://github.com/streamnative/kop) enabled can be used as the data stream layer for Kafka Connect, which uses a connector from [Debezium](https://debezium.io) to stream data changes made in near real-time in a [MySQL](https://www.mysql.com) database. The validation process is very simple: you just need to set this up as you would using Apache Kafka — but use Apache Pulsar with KoP enabled instead. Everything must work as advertised.
 
-1️⃣ Start MySQL and Kafka Connect
+1️⃣ Start the containers for this scenario
 
-```console
+```bash
 sh start-cdc-with-debezium.sh
 ```
 
@@ -104,7 +104,7 @@ sh start-cdc-with-debezium.sh
 
 2️⃣ Connect with the MySQL database and check the data
 
-```console
+```bash
 docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 ```
 
@@ -129,13 +129,13 @@ You should see an output like this:
 
 3️⃣ Deploy the Debezium connector
 
-```console
+```bash
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @cdc-with-debezium/register-mysql.json
 ```
 
 To verify if the connector has been sucessfully deployed, execute the following command:
 
-```console
+```bash
 curl -X GET http://localhost:8083/connectors/inventory-connector
 ```
 
@@ -147,7 +147,7 @@ You should see an output like this:
 
 4️⃣ Use the `kafka-console-consumer` to monitor data streams
 
-```console
+```bash
 $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic dbserver1.inventory.customers
 ```
 
@@ -155,7 +155,7 @@ $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic
 
 5️⃣ Insert a new record into the `customers` table.
 
-```console
+```bash
 docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 ```
 
@@ -167,11 +167,18 @@ INSERT INTO customers VALUES (1006, "Ricardo", "Ferreira", "riferrei@riferrei.co
 
 6️⃣ Look to the `kafka-console-consumer` output. You should see an output like this:
 
-```bash
+```console
 Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei@riferrei.com},source=Struct{version=1.9.3.Final,connector=mysql,name=dbserver1,ts_ms=1660824226000,db=inventory,table=customers,server_id=223344,file=mysql-bin.000003,pos=392,row=0,thread=113},op=c,ts_ms=1660824226436}
 ```
 
-#️⃣ Stop all containers if you're done with the testing.
+#️⃣ Stop the containers from this scenario.
+
+```bash
+cd ..
+sh stop-cdc-with-debezium.sh
+```
+
+Alternatively, you can also stop all containers if you're done for the day.
 
 ```bash
 cd ..
@@ -189,9 +196,9 @@ Another popular use case for [Apache Kafka](https://kafka.apache.org) is using i
 
 This scenario check if an [Apache Pulsar](https://pulsar.apache.org) broker with [KoP](https://github.com/streamnative/kop) enabled can be used as the data stream layer for ksqlDB, which implements a stream processing pipeline that flattens out events with a complex nested layout and also changes the data format from [JSON](https://www.json.org/json-en.html) to [Protobuf](https://developers.google.com/protocol-buffers). The validation process is very simple: you just need to set this up as you would using Apache Kafka — but use Apache Pulsar with KoP enabled instead. Everything must work as advertised.
 
-1️⃣ Start Schema Registry and ksqlDB
+1️⃣ Start the containers for this scenario
 
-```console
+```bash
 sh start-stream-processing.sh
 ```
 
@@ -199,7 +206,7 @@ sh start-stream-processing.sh
 
 2️⃣ Connect with the ksqlDB server via CLI:
 
-```console
+```bash
 $KAFKA_HOME/bin/ksql http://localhost:8088
 ```
 
@@ -252,7 +259,7 @@ EMIT CHANGES;
 
 4️⃣ Ingest data into the input topic
 
-```console
+```bash
 $KAFKA_HOME/bin/kafka-console-producer --bootstrap-server localhost:9092 --topic ORDERS
 ```
 
@@ -282,7 +289,14 @@ Go back to the continuous query that you started on step 3️⃣. With new event
 
 💡 The actual output includes more columns that what is shown above.
 
-#️⃣ Stop all containers if you're done with the testing.
+#️⃣ Stop the containers from this scenario
+
+```bash
+cd ..
+sh stop-stream-processing.sh
+```
+
+Alternatively, you can also stop all containers if you're done for the day.
 
 ```bash
 cd ..
