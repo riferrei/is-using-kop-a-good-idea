@@ -19,7 +19,7 @@ services:
       PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
       PULSAR_PREFIX_zookeeperServers: zookeeper:2181
       PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
-      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_clusterName: pulsar-cluster
       PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
       PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
       PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
@@ -30,7 +30,7 @@ services:
     healthcheck:
       interval: 5s
       retries: 20
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/pulsar-cluster
 
   kafka-2:
     image: streamnative/sn-pulsar:2.10.1.4
@@ -49,7 +49,7 @@ services:
       PULSAR_PREFIX_brokerEntryMetadataInterceptors: org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
       PULSAR_PREFIX_zookeeperServers: zookeeper:2181
       PULSAR_PREFIX_configurationStoreServers: zookeeper:2181
-      PULSAR_PREFIX_clusterName: microservices
+      PULSAR_PREFIX_clusterName: pulsar-cluster
       PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: 1
       PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: 1
       PULSAR_PREFIX_managedLedgerDefaultAckQuorum: 1
@@ -60,7 +60,7 @@ services:
     healthcheck:
       interval: 5s
       retries: 20
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/microservices
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8080/admin/v2/clusters/pulsar-cluster
 
 networks:
   default:

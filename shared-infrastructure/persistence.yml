@@ -25,7 +25,7 @@ services:
       zookeeper:
         condition: service_healthy
     command: >
-      bash -c "bin/pulsar initialize-cluster-metadata -c microservices -zk zookeeper:2181 -cs zookeeper:2181 -uw http://microservices-kafka-1:8080,microservices-kafka-2:8080"
+      bash -c "bin/pulsar initialize-cluster-metadata -c pulsar-cluster -zk zookeeper:2181 -cs zookeeper:2181 -uw http://pulsar-cluster-kafka-1:8080,pulsar-cluster-kafka-2:8080"
 
   bookie:
     image: streamnative/sn-pulsar:2.10.1.4
