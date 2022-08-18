@@ -52,16 +52,10 @@ This scenario checks two things. First, if KoP provides a truly Kafka-compatible
 
 To validate this scenario, two Apache Pulsar brokers with KoP enabled will be executed, and the microservice will use the endpoint of only one broker to bootstrap the cluster. When everything is up-and-running and working as expected, the broker being used by the microservice will be killed, and the assumption is that the microservice should fallback to the other available broker, and continue its execution. If that ever happens, it means that the bootstrap worked as expected, giving the specifications of how Kafka manages clusters and sends this information to its clients.
 
-1️⃣ Enter into the `microservice-with-kafka` folder
-
-```console
-cd microservice-with-kafka
-```
-
-2️⃣ Run the Spring Boot microservice
+1️⃣ Run the Spring Boot microservice
 
 ```bash
-sh run-microservice.sh
+sh microservice-with-kafka/run-microservice.sh
 ```
 
 👀 You must wait until the microservice connects with the brokers and start producing and consuming messages like this:
@@ -70,7 +64,7 @@ sh run-microservice.sh
 org.summit.pulsar.demo.FiveSecondsTom : Hi, I'm Tom 😄
 ```
 
-3️⃣ Find out which broker is the leader of the partition
+2️⃣ Find out which broker is the leader of the partition
 
 ```bash
 $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup persistent://public/default/fiveSecondsTomTopic
@@ -78,10 +72,10 @@ $PULSAR_HOME/bin/pulsar-admin --admin-url http://localhost:8081 topics lookup pe
 
 👀 Take a note of which broker shows up in this lookup.
 
-4️⃣ Forcing a fail-over situation by killing the leader
+3️⃣ Forcing a fail-over situation by killing the leader
 
 ```bash
-sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_THREE>
+sh kill-broker.sh <BROKER_CONTAINER_NAME_FROM_STEP_TWO>
 ```
 
 👀 Observe the microservice for a couple minutes. It must continue its processing.
@@ -108,16 +102,10 @@ sh start-cdc-with-debezium.sh
 
 👀 You must wait until the containers `mysql` and `connect` are healthy to proceed with the next step.
 
-2️⃣ Enter into the `cdc-with-debezium` folder
+2️⃣ Connect with the MySQL database and check the data
 
 ```console
-cd cdc-with-debezium
-```
-
-3️⃣ Connect with the MySQL database and check the data
-
-```console
-docker compose exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 ```
 
 Then, in the MySQL shell, execute the following command:
@@ -139,10 +127,10 @@ You should see an output like this:
 +------+------------+-----------+-----------------------+
 ```
 
-4️⃣ Deploy the Debezium connector
+3️⃣ Deploy the Debezium connector
 
 ```console
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @cdc-with-debezium/register-mysql.json
 ```
 
 To verify if the connector has been sucessfully deployed, execute the following command:
@@ -157,7 +145,7 @@ You should see an output like this:
 {"name":"inventory-connector","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","database.user":"debezium","database.server.id":"184054","tasks.max":"1","database.hostname":"mysql","database.password":"dbz","database.history.kafka.bootstrap.servers":"kafka:9092","database.history.kafka.topic":"schema-changes.inventory","name":"inventory-connector","database.server.name":"dbserver1","database.port":"3306","database.include.list":"inventory"},"tasks":[{"connector":"inventory-connector","task":0}],"type":"source"}
 ```
 
-5️⃣ Use the `kafka-console-consumer` to monitor data streams
+4️⃣ Use the `kafka-console-consumer` to monitor data streams
 
 ```console
 $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic dbserver1.inventory.customers
@@ -165,10 +153,10 @@ $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic
 
 👀 Leave this console open so you can see the data coming in.
 
-6️⃣ Insert a new record into the `customers` table.
+5️⃣ Insert a new record into the `customers` table.
 
 ```console
-docker compose exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 ```
 
 Then, in the MySQL shell, execute the following command:
@@ -177,7 +165,7 @@ Then, in the MySQL shell, execute the following command:
 INSERT INTO customers VALUES (1006, "Ricardo", "Ferreira", "riferrei@riferrei.com");
 ```
 
-7️⃣ Look to the `kafka-console-consumer` output. You should see an output like this:
+6️⃣ Look to the `kafka-console-consumer` output. You should see an output like this:
 
 ```bash
 Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei@riferrei.com},source=Struct{version=1.9.3.Final,connector=mysql,name=dbserver1,ts_ms=1660824226000,db=inventory,table=customers,server_id=223344,file=mysql-bin.000003,pos=392,row=0,thread=113},op=c,ts_ms=1660824226436}
@@ -209,13 +197,7 @@ sh start-stream-processing.sh
 
 👀 You must wait until the containers `schema-registry` and `ksqldb-server` are healthy to proceed with the next step.
 
-2️⃣ Enter into the `stream-processing` folder
-
-```console
-cd stream-processing
-```
-
-3️⃣ Connect with the ksqlDB server via CLI:
+2️⃣ Connect with the ksqlDB server via CLI:
 
 ```console
 $KAFKA_HOME/bin/ksql http://localhost:8088
@@ -224,7 +206,7 @@ $KAFKA_HOME/bin/ksql http://localhost:8088
 Then, in the ksqlDB shell, execute the following command:
 
 ```sql
-RUN SCRIPT 'statements.sql';
+RUN SCRIPT 'stream-processing/statements.sql';
 ```
 
 Once this command finishes, you should have two streams created. Before moving further, it is a good idea to check if they were really created by executing the following command:
@@ -243,7 +225,7 @@ You should see an output like this:
 ----------------------------------------------------------------------------
 ```
 
-4️⃣ Execute a continuous query
+3️⃣ Execute a continuous query
 
 ```sql
 SELECT
@@ -268,7 +250,7 @@ EMIT CHANGES;
 
 👀 This query never stops, unless you press Cmd+C to interrupt its execution. Leave this console open so you can see the data coming in.
 
-5️⃣ Ingest data into the input topic
+4️⃣ Ingest data into the input topic
 
 ```console
 $KAFKA_HOME/bin/kafka-console-producer --bootstrap-server localhost:9092 --topic ORDERS
@@ -284,9 +266,9 @@ Copy-and-paste the events below to the `kafka-console-producer` CLI:
 
 ```
 
-6️⃣ Verify if the pipeline executed correctly
+5️⃣ Verify if the pipeline executed correctly
 
-Go back to the continuous query that you started on step 4. With new events arriving, you should see that the query generated an output similar to this:
+Go back to the continuous query that you started on step 3️⃣. With new events arriving, you should see that the query generated an output similar to this:
 
 ```console
 +-----------+--------------+-----------------+-----------------+-----------------+-----------------+-----------------+------------+----------------------+
