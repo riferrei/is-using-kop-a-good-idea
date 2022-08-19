@@ -173,14 +173,12 @@ Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei
 #️⃣ Stop the containers from this scenario.
 
 ```bash
-cd ..
 sh stop-cdc-with-debezium.sh
 ```
 
 Alternatively, you can also stop all containers if you're done for the day.
 
 ```bash
-cd ..
 sh stop-everything.sh
 ```
 
@@ -291,14 +289,12 @@ Go back to the continuous query that you started on step 3️⃣. With new event
 #️⃣ Stop the containers from this scenario
 
 ```bash
-cd ..
 sh stop-stream-processing.sh
 ```
 
 Alternatively, you can also stop all containers if you're done for the day.
 
 ```bash
-cd ..
 sh stop-everything.sh
 ```
 
