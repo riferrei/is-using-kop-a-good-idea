@@ -3,19 +3,22 @@ version: '3'
 services:
 
   mysql:
-    image: quay.io/debezium/example-mysql:1.9
+    image: mysql:8.0
     container_name: mysql
     hostname: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: debezium
-      MYSQL_USER: mysqluser
-      MYSQL_PASSWORD: mysqlpw
-    ports:
-      - 3306:3306
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
+    volumes:
+     - ${PWD}/mysql-data:/docker-entrypoint-initdb.d
+     - ${PWD}/mysql-data:/data
     healthcheck:
       interval: 5s
       retries: 20
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+    ports:
+      - 3306:3306
 
   connect:
     image: confluentinc/cp-kafka-connect:7.0.5

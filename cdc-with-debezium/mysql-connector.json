@@ -1,5 +1,5 @@
 {
-    "name": "inventory-connector",
+    "name": "cdc-with-debezium",
     "config": {
         "connector.class": "io.debezium.connector.mysql.MySqlConnector",
         "tasks.max": "1",
@@ -8,9 +8,9 @@
         "database.user": "debezium",
         "database.password": "dbz",
         "database.server.id": "184054",
-        "database.server.name": "dbserver1",
-        "database.include.list": "inventory",
+        "database.server.name": "mysql",
+        "database.include.list": "cdc_with_debezium",
         "database.history.kafka.bootstrap.servers": "kafka-1:9092,kafka-2:9093",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "database.history.kafka.topic": "dbhistory.cdc_with_debezium"
     }
 }

@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker compose --project-name cdc-with-debezium --file cdc-with-debezium/docker-compose.yml up -d
+cd cdc-with-debezium
+docker compose --project-name cdc-with-debezium --file docker-compose.yml up -d
+cd ../

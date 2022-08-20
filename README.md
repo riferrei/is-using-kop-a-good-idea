@@ -104,13 +104,13 @@ sh start-cdc-with-debezium.sh
 2️⃣ Connect with the MySQL database and check the data
 
 ```bash
-docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD cdc_with_debezium'
 ```
 
 Then, in the MySQL shell, execute the following command:
 
 ```sql
-SELECT * FROM customers;
+select * from customers;
 ```
 
 You should see an output like this:
@@ -129,25 +129,25 @@ You should see an output like this:
 3️⃣ Deploy the Debezium connector
 
 ```bash
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @cdc-with-debezium/register-mysql.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @cdc-with-debezium/mysql-connector.json
 ```
 
 To verify if the connector has been sucessfully deployed, execute the following command:
 
 ```bash
-curl -X GET http://localhost:8083/connectors/inventory-connector
+curl -X GET http://localhost:8083/connectors/cdc-with-debezium
 ```
 
 You should see an output like this:
 
 ```json
-{"name":"inventory-connector","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","database.user":"debezium","database.server.id":"184054","tasks.max":"1","database.hostname":"mysql","database.password":"dbz","database.history.kafka.bootstrap.servers":"kafka:9092","database.history.kafka.topic":"schema-changes.inventory","name":"inventory-connector","database.server.name":"dbserver1","database.port":"3306","database.include.list":"inventory"},"tasks":[{"connector":"inventory-connector","task":0}],"type":"source"}
+{"name":"cdc-with-debezium","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","database.user":"debezium","database.server.id":"184054","tasks.max":"1","database.hostname":"mysql","database.password":"dbz","database.history.kafka.bootstrap.servers":"kafka-1:9092,kafka-2:9093","database.history.kafka.topic":"dbhistory.cdc_with_debezium","name":"cdc-with-debezium","database.server.name":"mysql","database.port":"3306","database.include.list":"cdc_with_debezium"},"tasks":[{"connector":"cdc-with-debezium","task":0}],"type":"source"}
 ```
 
 4️⃣ Use the `kafka-console-consumer` to monitor data streams
 
 ```bash
-$KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic dbserver1.inventory.customers
+$KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic mysql.cdc_with_debezium.customers
 ```
 
 👀 Leave this console open so you can see the data coming in.
@@ -155,19 +155,19 @@ $KAFKA_HOME/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic
 5️⃣ Insert a new record into the `customers` table.
 
 ```bash
-docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+docker compose -f cdc-with-debezium/docker-compose.yml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD cdc_with_debezium'
 ```
 
 Then, in the MySQL shell, execute the following command:
 
 ```sql
-INSERT INTO customers VALUES (1006, "Ricardo", "Ferreira", "riferrei@riferrei.com");
+insert into customers values (1006, "Ricardo", "Ferreira", "riferrei@riferrei.com");
 ```
 
 6️⃣ Look to the `kafka-console-consumer` output. You should see an output like this:
 
 ```console
-Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei@riferrei.com},source=Struct{version=1.9.3.Final,connector=mysql,name=dbserver1,ts_ms=1660824226000,db=inventory,table=customers,server_id=223344,file=mysql-bin.000003,pos=392,row=0,thread=113},op=c,ts_ms=1660824226436}
+Struct{after=Struct{id=1006,first_name=Ricardo,last_name=Ferreira,email=riferrei@riferrei.com},source=Struct{version=1.9.3.Final,connector=mysql,name=mysql,ts_ms=1660957053000,db=cdc_with_debezium,table=customers,server_id=1,file=binlog.000002,pos=406,row=0,thread=36},op=c,ts_ms=1660957053478}
 ```
 
 #️⃣ Stop the containers from this scenario.
