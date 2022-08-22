@@ -29,7 +29,7 @@ public class FiveSecondsTom {
     }
 
     @KafkaListener(topics = Constants.TOPIC_NAME)
-        public void sayHi(@Payload String message) {
+    public void sayHi(@Payload String message) {
         logger.info(message);
     }
 
