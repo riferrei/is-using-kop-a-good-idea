@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  manager:
+    image: apachepulsar/pulsar-manager:v0.2.0
+    container_name: pulsar-manager
+    hostname: pulsar-manager
+    environment:
+      SPRING_CONFIGURATION_FILE: /pulsar-manager/pulsar-manager/application.properties
+    ports:
+      - "9527:9527"
+      - "7750:7750"
+    healthcheck:
+      interval: 5s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:7750/pulsar-manager/csrf-token
+
+
+networks:
+  default:
+    name: is-using-kop-a-good-idea
+    external: true

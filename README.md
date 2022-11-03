@@ -13,7 +13,7 @@ This gets you pumped. Is that it? Can I go ahead and simply point my microservic
 
 💡 This repository was created as part of the session entitled **Is Using KoP (Kafka-On-Pulsar) a Good Idea?** delivered in the [Pulsar Summit 2022](https://pulsar-summit.org/event/san-francisco-2022) conference, in San Francisco, CA. Click in the image below to access slides and recording of this session.
 
-[![Is Using KoP (Kafka-On-Pulsar) a Good Idea?](/images/pulsar-summit-session.png "https://talks.riferrei.com/LgUiHy")](https://talks.riferrei.com/LgUiHy)
+[![Is Using KoP (Kafka-On-Pulsar) a Good Idea?](./images/pulsar-summit-session.png "https://talks.riferrei.com/LgUiHy")](https://talks.riferrei.com/LgUiHy)
 
 Requirements
 ------------
@@ -44,6 +44,30 @@ sh start-brokers.sh
 ```
 
 👀 You must wait until the containers `kafka-1` and `kafka-2` are healthy to proceed with any next step.
+
+
+
+3️⃣ Start the control plane (Optional)
+
+```bash
+sh start-control-plane.sh
+```
+
+👀 You must wait until the container `pulsar-manager` is healthy before you can access the UI and create an environment. Once the container is running, you should see a screen similar to the following when you visit [http://localhost:9527](http://localhost:9527). Enter `admin` for the username and `apachepulsar` as the password.
+
+![image info](./images/Pulsar-Manager-Login.png)
+
+Next, you will need to add an environment to the Pulsar Manager. An environment represents a Pulsar instance or a group of clusters you want to manage. A Pulsar Manager is capable of managing multiple environments.
+
+Click "New Environment" button to add an environment.
+Input the "Environment Name". The environment name is used for identifying an environment.
+Input the "Service URL". The Service URL is the admin service url of your Pulsar cluster.
+You need to make sure the service url that Pulsar Manager is able to access. In this example, both the pulsar container and pulsar-manager container use the same docker network. So you can use pulsar container name as the domain name of the pulsar standalone cluster. Thus you can type http://kafka-1:8080 in the service URL box and click on the `confirm` button.
+
+![image](./images/Pulsar-Manager-Create-Environment.png)
+
+This will create the environment and allow you to manage the Pulsar cluster from the Pulsar Manager UI.
+
 
 ✅ Scenario: Microservice built for Apache Kafka
 -------------------------------------------------

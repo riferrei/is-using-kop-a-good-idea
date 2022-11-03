@@ -62,3 +62,4 @@ services:
 networks:
   default:
     name: is-using-kop-a-good-idea
+    external: true

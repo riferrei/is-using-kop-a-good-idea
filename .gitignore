@@ -25,3 +25,6 @@ hs_err_pid*
 connect-integration/.DS_Store
 stream-processing/.DS_Store
 microservices/.DS_Store
+
+# IntelliJ project file
+.idea/
